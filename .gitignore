@@ -1,0 +1,11 @@
+# PUBLIC repo: upload ONLY what the cloud auto-commenter needs.
+# Everything else in this folder (video tools, jobs, autopost, brand, keys) stays on the Mac.
+/*
+!/.gitignore
+!/.github/
+!/CLOUD_README.md
+!/autocomment.py
+!/fbpage.py
+!/catalog.json
+!/autocomment_settings.json
+!/autocomment_state.json

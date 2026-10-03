@@ -1,0 +1,36 @@
+# Auto "Order here 👉 <link>" comment on The Orange Cart PH Reels — runs on GitHub,
+# so comments land even when the Mac is off. Secrets: FB_PAGE_ID, FB_PAGE_TOKEN.
+name: autocomment
+on:
+  schedule:
+    - cron: "3-59/5 * * * *"      # every 5 min (GitHub may delay a few minutes at busy times)
+  workflow_dispatch: {}
+permissions:
+  contents: write                 # to save autocomment_state.json back to the repo
+concurrency:
+  group: autocomment              # never two runs at once → never two comments
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check posts and comment
+        env:
+          AUTOCOMMENT_RUNNER: cloud
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+        run: python autocomment.py run
+      - name: Save results
+        run: |
+          git config user.name "autocomment-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add autocomment_state.json
+          if ! git diff --cached --quiet; then
+            git commit -q -m "results $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase -q && git push -q
+          fi
