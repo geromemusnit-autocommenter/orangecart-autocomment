@@ -340,7 +340,7 @@ def comment_on(st, page, pid, manual=False):
     if any("s.shopee.ph" in (c.get("message") or "") for c in page.page_comments(pid)):
         return False, "Page already has a link comment"
     cid = page.comment(pid, e["match"]["comment"])
-    landed = next((c for c in page.page_comments(pid) if c["id"] == cid), None)
+    landed = next((c for c in page.page_comments(pid) if c["id"].split("_")[-1] == str(cid).split("_")[-1]), None)  # same comment, prefix is video id vs post id
     e["commented"] = {"id": cid, "message": e["match"]["comment"], "by": "manual click" if manual else "auto",
                       "at": now(), "landed": bool(landed), "permalink": landed and landed.get("permalink_url")}
     log(st, f"commented on {pid} ({e['match']['name']}) → {'landed ✓' if landed else 'NOT FOUND after posting'}")
