@@ -153,7 +153,13 @@ def catalog():
                     "caption": read("caption_facebook.txt") or read("caption.txt"),
                     "caption_shopee": read("caption_shopee.txt"),
                     "hashtags": p.get("hashtags") or []})
-    return out
+    # keep products whose job folder was deleted after the FCP import (user does this to save
+    # space), so their scheduled posts still get commented; products retired to replaced/ are dropped
+    have = {x["job"] for x in out}
+    retired = set(os.listdir(os.path.join(HERE, "replaced"))) if os.path.isdir(os.path.join(HERE, "replaced")) else set()
+    old = json.load(open(CATALOG)) if os.path.exists(CATALOG) else []
+    out += [x for x in old if x["job"] not in have and x["job"] not in retired]
+    return sorted(out, key=lambda x: x["job"])
 
 
 def export_catalog(push=None):
